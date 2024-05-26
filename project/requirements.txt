@@ -1,0 +1,6 @@
+fastapi
+asyncpg
+uvicorn
+sqlalchemy
+sqlmodel
+fire
