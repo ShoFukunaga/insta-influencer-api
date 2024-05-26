@@ -3,6 +3,7 @@ version: '3.8'
 services:
 
   web:
+    container_name: web
     build: ./project
     command: uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
     volumes:
@@ -10,14 +11,13 @@ services:
     ports:
       - 8004:8000
     environment:
-      - ENVIRONMENT=dev
-      - TESTING=0
       - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/dev
       - DATABASE_TEST_URL=postgresql+asyncpg://postgres:postgres@db:5432/test
     depends_on:
       - db
 
   db:
+    container_name: db
     build:
       context: ./project/db
       dockerfile: Dockerfile

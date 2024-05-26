@@ -1,8 +1,8 @@
 from datetime import datetime
 
 from app.models import Post
-from sqlalchemy import (BigInteger, CheckConstraint, Column, Integer, String,
-                        select)
+from app.exceptions import AppException
+from sqlalchemy import BigInteger, CheckConstraint, Column, Integer, String, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -24,6 +24,16 @@ class PostORM(BaseORM):
 
     def to_entity(self) -> Post:
         return Post.model_validate(self)
+
+    def update(self, post: Post) -> None:
+        self.influencer_id = post.influencer_id
+        self.post_id = post.post_id
+        self.shortcode = post.shortcode
+        self.likes = post.likes
+        self.comments = post.comments
+        self.thumbnail = post.thumbnail
+        self.text = post.text
+        self.post_date = post.post_date
 
 
 class PostRepository:
@@ -53,12 +63,32 @@ class PostRepository:
         await session.flush()
         return post.to_entity()
 
+    async def update(self, session: AsyncSession, post: Post) -> Post:
+        stmt = select(PostORM).where(PostORM.post_id == post.post_id)
+        post_ = await session.scalar(stmt)
+        if not post_:
+            raise AppException()
+        post_.update(post)
+        await session.flush()
+        return post_.to_entity()
+
     async def get_all(
         self,
         session: AsyncSession,
     ) -> list[Post]:
         stmt = select(PostORM)
         return [post.to_entity() for post in await session.scalars(stmt)]
+
+    async def get_by_id(
+        self,
+        session: AsyncSession,
+        post_id: int,
+    ) -> Post | None:
+        stmt = select(PostORM).where(PostORM.post_id == post_id)
+        post = await session.scalar(stmt)
+        if not post:
+            return None
+        return post.to_entity()
 
     async def get_by_influencer_id(
         self,

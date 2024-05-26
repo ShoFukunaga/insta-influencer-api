@@ -3,18 +3,12 @@ from typing import Annotated
 from app.routes import LoggingRoute
 from fastapi import APIRouter, Depends
 
-from .schemas import (
-    GetInfluencerAverageResponse,
-    GetInfluencerMostLikesResponse,
-    GetInfluencerMostCommentsResponse,
-    GetInfluencerMostNounsResponse,
-)
-from .use_cases import (
-    GetInfluencerAverage,
-    GetInfluencerMostLikes,
-    GetInfluencerMostComments,
-    GetInfluencerMostNouns,
-)
+from .schemas import (GetInfluencerAverageResponse,
+                      GetInfluencerMostCommentsResponse,
+                      GetInfluencerMostLikesResponse,
+                      GetInfluencerMostNounsResponse)
+from .use_cases import (GetInfluencerAverage, GetInfluencerMostComments,
+                        GetInfluencerMostLikes, GetInfluencerMostNouns)
 
 router = APIRouter(
     prefix="/v1/posts",

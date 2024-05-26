@@ -2,12 +2,12 @@ from datetime import datetime, timezone
 from unittest.mock import ANY
 
 import pytest
+from app.repositories.post import PostORM
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def setup_data(session: AsyncSession):
-    from app.repositories.post import PostORM
 
     post1 = PostORM(
         post_id=1,
@@ -86,8 +86,6 @@ async def test_get_influencer_average_normal(ac, session: AsyncSession):
     平均いいね数、平均コメント数をJSON形式で返すAPI
     正常系_1
     """
-    from app.repositories.post import PostORM
-
     await setup_data(session)
     post = await session.scalar(select(PostORM).where(PostORM.post_id == 1))
     response = await ac.get(f"/api/v1/posts/influencer/{post.influencer_id}/average")
@@ -104,8 +102,6 @@ async def test_get_influencer_average_normal_2(ac, session: AsyncSession):
     平均いいね数、平均コメント数をJSON形式で返すAPI
     正常系_2
     """
-    from app.repositories.post import PostORM
-
     await setup_data(session)
     post = await session.scalar(select(PostORM).where(PostORM.post_id == 2))
     response = await ac.get(f"/api/v1/posts/influencer/{post.influencer_id}/average")
@@ -131,13 +127,13 @@ async def test_get_influencer_average_not_found(ac, session: AsyncSession):
 
 
 @pytest.mark.anyio
-async def test_get_influencer_top_likes_normal_1(ac, session: AsyncSession):
+async def test_get_influencer_most_likes_normal_1(ac, session: AsyncSession):
     """
     平均いいね数が多いinfluencer上位N件をJSON形式で返すAPI
     正常系_1
     """
     await setup_data(session)
-    response = await ac.get("/api/v1/posts/influencer/top/likes/?limit=3")
+    response = await ac.get("/api/v1/posts/influencer/most-likes/?limit=3")
     assert response.status_code == 200
     expected = {
         "influencers": [
@@ -151,13 +147,13 @@ async def test_get_influencer_top_likes_normal_1(ac, session: AsyncSession):
 
 
 @pytest.mark.anyio
-async def test_get_influencer_top_likes_normal_2(ac, session: AsyncSession):
+async def test_get_influencer_most_likes_normal_2(ac, session: AsyncSession):
     """
     平均いいね数が多いinfluencer上位N件をJSON形式で返すAPI
     正常系_2
     """
     await setup_data(session)
-    response = await ac.get("/api/v1/posts/influencer/top/likes/?limit=1000")
+    response = await ac.get("/api/v1/posts/influencer/most-likes/?limit=1000")
     assert response.status_code == 200
     expected = {
         "influencers": [
@@ -171,13 +167,13 @@ async def test_get_influencer_top_likes_normal_2(ac, session: AsyncSession):
 
 
 @pytest.mark.anyio
-async def test_get_influencer_top_likes_normal_3(ac, session: AsyncSession):
+async def test_get_influencer_most_likes_normal_3(ac, session: AsyncSession):
     """
     平均いいね数が多いinfluencer上位N件をJSON形式で返すAPI
     正常系_3
     """
     await setup_data(session)
-    response = await ac.get("/api/v1/posts/influencer/top/likes/?limit=0")
+    response = await ac.get("/api/v1/posts/influencer/most-likes/?limit=0")
     assert response.status_code == 200
     expected = {"influencers": []}
     data = response.json()
@@ -185,13 +181,13 @@ async def test_get_influencer_top_likes_normal_3(ac, session: AsyncSession):
 
 
 @pytest.mark.anyio
-async def test_get_influencer_top_comments_normal_1(ac, session: AsyncSession):
+async def test_get_influencer_most_comments_normal_1(ac, session: AsyncSession):
     """
     平均コメント数が多いinfluencer上位N件をJSON形式で返すAPI
     正常系_1
     """
     await setup_data(session)
-    response = await ac.get("/api/v1/posts/influencer/top/comments/?limit=3")
+    response = await ac.get("/api/v1/posts/influencer/most-comments/?limit=3")
     assert response.status_code == 200
     expected = {
         "influencers": [
@@ -205,13 +201,13 @@ async def test_get_influencer_top_comments_normal_1(ac, session: AsyncSession):
 
 
 @pytest.mark.anyio
-async def test_get_influencer_top_comments_normal_2(ac, session: AsyncSession):
+async def test_get_influencer_most_comments_normal_2(ac, session: AsyncSession):
     """
     平均コメント数が多いinfluencer上位N件をJSON形式で返すAPI
     正常系_2
     """
     await setup_data(session)
-    response = await ac.get("/api/v1/posts/influencer/top/comments/?limit=1000")
+    response = await ac.get("/api/v1/posts/influencer/most-comments/?limit=1000")
     assert response.status_code == 200
     expected = {
         "influencers": [
@@ -225,13 +221,13 @@ async def test_get_influencer_top_comments_normal_2(ac, session: AsyncSession):
 
 
 @pytest.mark.anyio
-async def test_get_influencer_top_comments_normal_3(ac, session: AsyncSession):
+async def test_get_influencer_most_comments_normal_3(ac, session: AsyncSession):
     """
     平均コメント数が多いinfluencer上位N件をJSON形式で返すAPI
     正常系_3
     """
     await setup_data(session)
-    response = await ac.get("/api/v1/posts/influencer/top/comments/?limit=0")
+    response = await ac.get("/api/v1/posts/influencer/most-comments/?limit=0")
     assert response.status_code == 200
     expected = {"influencers": []}
     data = response.json()
@@ -239,18 +235,16 @@ async def test_get_influencer_top_comments_normal_3(ac, session: AsyncSession):
 
 
 @pytest.mark.anyio
-async def test_get_influencer_num_of_nouns_normal_1(ac, session: AsyncSession):
+async def test_get_influencer_most_nouns_normal_1(ac, session: AsyncSession):
     """
     influencer_id毎に、格納したデータのtextカラムに格納されたデータから名詞を抽出し、
     その使用回数を集計し、上位N件（NはAPIのリクエストデータ）をJSON形式で返すAPI
     正常系_1
     """
-    from app.repositories.post import PostORM
-
     await setup_data(session)
     post = await session.scalar(select(PostORM).where(PostORM.post_id == 2))
     response = await ac.get(
-        f"/api/v1/posts/influencer/{post.influencer_id}/noun/?limit=5"
+        f"/api/v1/posts/influencer/{post.influencer_id}/most-nouns/?limit=5"
     )
     expected = {
         "influencer_id": 102,
@@ -268,18 +262,16 @@ async def test_get_influencer_num_of_nouns_normal_1(ac, session: AsyncSession):
 
 
 @pytest.mark.anyio
-async def test_get_influencer_num_of_nouns_normal_2(ac, session: AsyncSession):
+async def test_get_influencer_most_nouns_normal_2(ac, session: AsyncSession):
     """
     influencer_id毎に、格納したデータのtextカラムに格納されたデータから名詞を抽出し、
     その使用回数を集計し、上位N件（NはAPIのリクエストデータ）をJSON形式で返すAPI
     正常系_2
     """
-    from app.repositories.post import PostORM
-
     await setup_data(session)
     post = await session.scalar(select(PostORM).where(PostORM.post_id == 4))
     response = await ac.get(
-        f"/api/v1/posts/influencer/{post.influencer_id}/noun/?limit=5"
+        f"/api/v1/posts/influencer/{post.influencer_id}/most-nouns/?limit=5"
     )
     expected = {
         "influencer_id": 103,

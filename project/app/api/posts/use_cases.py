@@ -3,13 +3,8 @@ from collections import Counter, defaultdict
 import spacy
 from app.database import AsyncSession, PostRepository
 from app.exceptions import NotFound
-from app.models import (
-    InfluencerAverage,
-    InfluencerMostLikes,
-    InfluencerMostComments,
-    NounCounts,
-    InfluencerMostNouns,
-)
+from app.models import (InfluencerAverage, InfluencerMostComments,
+                        InfluencerMostLikes, InfluencerMostNouns, NounCounts)
 
 nlp = spacy.load("ja_ginza")
 

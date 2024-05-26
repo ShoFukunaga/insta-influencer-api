@@ -4,3 +4,5 @@ uvicorn
 sqlalchemy
 sqlmodel
 fire
+pytest
+httpx
