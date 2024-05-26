@@ -19,7 +19,7 @@ def anyio_backend():
 
 @pytest.fixture(scope="function")
 async def ac():
-    headers = {"APP-API-KEY": "DUMMY-KEY"}
+    headers = {"API-KEY": "API-KEY"}
     async with AsyncClient(
         app=app,
         base_url="http://test",
