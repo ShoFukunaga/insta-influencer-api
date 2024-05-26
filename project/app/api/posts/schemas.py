@@ -1,12 +1,12 @@
 from app.models import BaseModel
 
 
-class AverageLikesInfluencer(BaseModel):
+class InfluencerAverageLikes(BaseModel):
     influencer_id: int
     average_likes: float
 
 
-class AverageCommentsInfluencer(BaseModel):
+class InfluencerAverageComments(BaseModel):
     influencer_id: int
     average_comments: float
 
@@ -17,12 +17,12 @@ class GetInfluencerAverageResponse(BaseModel):
     average_comments: float
 
 
-class GetTopLikedInfluencersResponse(BaseModel):
-    influencers: list[AverageLikesInfluencer]
+class GetInfluencerMostLikesResponse(BaseModel):
+    influencers: list[InfluencerAverageLikes]
 
 
-class GetTopCommentedInfluencersResponse(BaseModel):
-    influencers: list[AverageCommentsInfluencer]
+class GetInfluencerMostCommentsResponse(BaseModel):
+    influencers: list[InfluencerAverageComments]
 
 
 class NounCounts(BaseModel):
@@ -30,6 +30,6 @@ class NounCounts(BaseModel):
     count: int
 
 
-class GetInfluencerNumOfUseNounResponse(BaseModel):
+class GetInfluencerMostNounsResponse(BaseModel):
     influencer_id: int
     nouns: list[NounCounts]

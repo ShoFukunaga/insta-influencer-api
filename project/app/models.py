@@ -25,12 +25,12 @@ class InfluencerAverage(BaseModel):
     average_comments: float
 
 
-class AverageLikesInfluencer(BaseModel):
+class InfluencerMostLikes(BaseModel):
     influencer_id: int
     average_likes: float
 
 
-class AverageCommentsInfluencer(BaseModel):
+class InfluencerMostComments(BaseModel):
     influencer_id: int
     average_comments: float
 
@@ -40,6 +40,6 @@ class NounCounts(BaseModel):
     count: int
 
 
-class GetInfluencerNumOfUseNoun(BaseModel):
+class InfluencerMostNouns(BaseModel):
     influencer_id: int
     nouns: list[NounCounts]

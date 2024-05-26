@@ -3,9 +3,13 @@ from collections import Counter, defaultdict
 import spacy
 from app.database import AsyncSession, PostRepository
 from app.exceptions import NotFound
-from app.models import (AverageCommentsInfluencer, AverageLikesInfluencer,
-                        GetInfluencerNumOfUseNoun, InfluencerAverage,
-                        NounCounts)
+from app.models import (
+    InfluencerAverage,
+    InfluencerMostLikes,
+    InfluencerMostComments,
+    NounCounts,
+    InfluencerMostNouns,
+)
 
 nlp = spacy.load("ja_ginza")
 
@@ -37,19 +41,19 @@ class GetInfluencerAverage:
         )
 
 
-class GetTopLikedInfluencers:
+class GetInfluencerMostLikes:
     def __init__(
         self,
         session: AsyncSession,
         repo: PostRepository,
-    ) -> list[AverageLikesInfluencer]:
+    ) -> None:
         self.session = session
         self.repo = repo
 
     async def execute(
         self,
         limit: int,
-    ) -> list[AverageLikesInfluencer]:
+    ) -> list[InfluencerMostLikes]:
         async with self.session() as session:
             posts = await self.repo.get_all(session)
             # influencer_idごとの投稿数、いいね数を集計します
@@ -61,7 +65,7 @@ class GetTopLikedInfluencers:
             average_likes_list = []
             for influencer_id, counts in influencer_counts.items():
                 average_likes_list.append(
-                    AverageLikesInfluencer(
+                    InfluencerMostLikes(
                         influencer_id=influencer_id,
                         average_likes=round(
                             influencer_likes[influencer_id] / counts, 2
@@ -75,19 +79,19 @@ class GetTopLikedInfluencers:
             )[:limit]
 
 
-class GetTopCommentedInfluencers:
+class GetInfluencerMostComments:
     def __init__(
         self,
         session: AsyncSession,
         repo: PostRepository,
-    ) -> list[AverageLikesInfluencer]:
+    ) -> None:
         self.session = session
         self.repo = repo
 
     async def execute(
         self,
         limit: int,
-    ) -> list[AverageLikesInfluencer]:
+    ) -> list[InfluencerMostComments]:
         async with self.session() as session:
             posts = await self.repo.get_all(session)
             # influencer_idごとの投稿数、コメント数を集計します
@@ -99,7 +103,7 @@ class GetTopCommentedInfluencers:
             average_comments_list = []
             for influencer_id, counts in influencer_counts.items():
                 average_comments_list.append(
-                    AverageCommentsInfluencer(
+                    InfluencerMostComments(
                         influencer_id=influencer_id,
                         average_comments=round(
                             influencer_comments[influencer_id] / counts, 2
@@ -113,7 +117,7 @@ class GetTopCommentedInfluencers:
             )[:limit]
 
 
-class GetInfluencerNoun:
+class GetInfluencerMostNouns:
     def __init__(
         self,
         session: AsyncSession,
@@ -126,7 +130,7 @@ class GetInfluencerNoun:
         self,
         influencer_id: int,
         limit: int,
-    ) -> GetInfluencerNumOfUseNoun:
+    ) -> InfluencerMostNouns:
         async with self.session() as session:
             posts = await self.repo.get_by_influencer_id(
                 session,
@@ -149,7 +153,7 @@ class GetInfluencerNoun:
             counter = Counter(nouns)
             most_common = counter.most_common(limit)
 
-        return GetInfluencerNumOfUseNoun(
+        return InfluencerMostNouns(
             influencer_id=influencer_id,
             nouns=[
                 NounCounts(

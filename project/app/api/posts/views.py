@@ -3,12 +3,18 @@ from typing import Annotated
 from app.routes import LoggingRoute
 from fastapi import APIRouter, Depends
 
-from .schemas import (GetInfluencerAverageResponse,
-                      GetInfluencerNumOfUseNounResponse,
-                      GetTopCommentedInfluencersResponse,
-                      GetTopLikedInfluencersResponse)
-from .use_cases import (GetInfluencerAverage, GetInfluencerNoun,
-                        GetTopCommentedInfluencers, GetTopLikedInfluencers)
+from .schemas import (
+    GetInfluencerAverageResponse,
+    GetInfluencerMostLikesResponse,
+    GetInfluencerMostCommentsResponse,
+    GetInfluencerMostNounsResponse,
+)
+from .use_cases import (
+    GetInfluencerAverage,
+    GetInfluencerMostLikes,
+    GetInfluencerMostComments,
+    GetInfluencerMostNouns,
+)
 
 router = APIRouter(
     prefix="/v1/posts",
@@ -32,41 +38,45 @@ async def get_influencer_average(
 
 
 @router.get(
-    "/influencer/top/likes/",
-    response_model=GetTopLikedInfluencersResponse,
+    "/influencer/most-likes/",
+    response_model=GetInfluencerMostLikesResponse,
 )
-async def get_top_liked_influencers(
-    use_case: Annotated[GetTopLikedInfluencers, Depends(GetTopLikedInfluencers)],
-    limit: int = 10,
-) -> GetTopLikedInfluencersResponse:
-    return GetTopLikedInfluencersResponse(
-        influencers=await use_case.execute(limit),
-    )
-
-
-@router.get(
-    "/influencer/top/comments/",
-    response_model=GetTopCommentedInfluencersResponse,
-)
-async def get_influencer_top_comments(
+async def get_influencer_most_likes(
     use_case: Annotated[
-        GetTopCommentedInfluencers, Depends(GetTopCommentedInfluencers)
+        GetInfluencerMostLikes,
+        Depends(GetInfluencerMostLikes),
     ],
     limit: int = 10,
-) -> GetTopCommentedInfluencersResponse:
-    return GetTopCommentedInfluencersResponse(
+) -> GetInfluencerMostLikesResponse:
+    return GetInfluencerMostLikesResponse(
         influencers=await use_case.execute(limit),
     )
 
 
 @router.get(
-    "/influencer/{influencer_id}/noun/",
-    response_model=GetInfluencerNumOfUseNounResponse,
+    "/influencer/most-comments/",
+    response_model=GetInfluencerMostCommentsResponse,
 )
-async def get_influencer_noun_uses(
-    use_case: Annotated[GetInfluencerNoun, Depends(GetInfluencerNoun)],
+async def get_influencer_most_comments(
+    use_case: Annotated[
+        GetInfluencerMostComments,
+        Depends(GetInfluencerMostComments),
+    ],
+    limit: int = 10,
+) -> GetInfluencerMostCommentsResponse:
+    return GetInfluencerMostCommentsResponse(
+        influencers=await use_case.execute(limit),
+    )
+
+
+@router.get(
+    "/influencer/{influencer_id}/most-nouns/",
+    response_model=GetInfluencerMostNounsResponse,
+)
+async def get_influencer_most_nouns(
+    use_case: Annotated[GetInfluencerMostNouns, Depends(GetInfluencerMostNouns)],
     influencer_id: int,
     limit: int = 10,
-) -> GetInfluencerNumOfUseNounResponse:
+) -> GetInfluencerMostNounsResponse:
     result = await use_case.execute(influencer_id, limit)
-    return GetInfluencerNumOfUseNounResponse.model_validate(result)
+    return GetInfluencerMostNounsResponse.model_validate(result)
