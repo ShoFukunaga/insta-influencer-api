@@ -1,7 +1,8 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from unittest.mock import ANY
 
 import pytest
+from app.commands.create_posts_from_csv import create_post_from_csv
 from app.repositories.post import PostORM
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -78,6 +79,94 @@ async def setup_data(session: AsyncSession):
     session.add_all([post1, post2, post3, post4, post5])
     await session.flush()
     await session.commit()
+
+
+@pytest.mark.anyio
+async def test_create_csv_to_rdb_normal_1(
+    ac,
+    session: AsyncSession,
+    temp_csv_file_1,
+):
+    """
+    CSVデータをRDBに格納する関数のテスト
+    正常系_1: create
+    """
+    await create_post_from_csv(temp_csv_file_1, session)
+    await session.commit()
+    post_1 = await session.scalar(select(PostORM).where(PostORM.post_id == 1))
+    post_2 = await session.scalar(select(PostORM).where(PostORM.post_id == 2))
+
+    assert post_1.influencer_id == 1
+    assert post_1.post_id == 1
+    assert post_1.shortcode == "shortcode1"
+    assert post_1.likes == 100
+    assert post_1.comments == 10
+    assert post_1.thumbnail == "thumbnail1"
+    assert post_1.text == "こんにちは"
+    assert post_1.post_date == datetime.strptime(
+        "2023-01-01 12:00:00", "%Y-%m-%d %H:%M:%S"
+    )
+
+    assert post_2.influencer_id == 2
+    assert post_2.post_id == 2
+    assert post_2.shortcode == "shortcode2"
+    assert post_2.likes == 200
+    assert post_2.comments == 20
+    assert post_2.thumbnail == "thumbnail2"
+    assert post_2.text == "今日の天気"
+    assert post_2.post_date == datetime.strptime(
+        "2023-02-02 13:00:00", "%Y-%m-%d %H:%M:%S"
+    )
+
+
+@pytest.mark.anyio
+async def test_create_csv_to_rdb_normal_2(
+    ac,
+    session: AsyncSession,
+    temp_csv_file_2,
+):
+    """
+    CSVデータをRDBに格納する関数のテスト
+    正常系_2: upsert
+    """
+    await create_post_from_csv(temp_csv_file_2, session)
+    await session.commit()
+    post_1 = await session.scalar(select(PostORM).where(PostORM.post_id == 1))
+    post_2 = await session.scalar(select(PostORM).where(PostORM.post_id == 2))
+    post_3 = await session.scalar(select(PostORM).where(PostORM.post_id == 3))
+
+    assert post_1.influencer_id == 1
+    assert post_1.post_id == 1
+    assert post_1.shortcode == "shortcode1"
+    assert post_1.likes == 100
+    assert post_1.comments == 10
+    assert post_1.thumbnail == "thumbnail1"
+    assert post_1.text == "こんにちは"
+    assert post_1.post_date == datetime.strptime(
+        "2023-01-01 12:00:00", "%Y-%m-%d %H:%M:%S"
+    )
+
+    assert post_2.influencer_id == 2
+    assert post_2.post_id == 2
+    assert post_2.shortcode == "shortcode2_update"
+    assert post_2.likes == 200
+    assert post_2.comments == 20
+    assert post_2.thumbnail == "thumbnail2"
+    assert post_2.text == "今日の天気"
+    assert post_2.post_date == datetime.strptime(
+        "2023-02-02 13:00:00", "%Y-%m-%d %H:%M:%S"
+    )
+
+    assert post_3.influencer_id == 2
+    assert post_3.post_id == 3
+    assert post_3.shortcode == "shortcode3"
+    assert post_3.likes == 300
+    assert post_3.comments == 30
+    assert post_3.thumbnail == "thumbnail3"
+    assert post_3.text == "今日の天気"
+    assert post_3.post_date == datetime.strptime(
+        "2023-02-02 13:00:00", "%Y-%m-%d %H:%M:%S"
+    )
 
 
 @pytest.mark.anyio

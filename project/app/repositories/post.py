@@ -1,8 +1,9 @@
 from datetime import datetime
 
-from app.models import Post
 from app.exceptions import AppException
-from sqlalchemy import BigInteger, CheckConstraint, Column, Integer, String, select
+from app.models import Post
+from sqlalchemy import (BigInteger, CheckConstraint, Column, Integer, String,
+                        select)
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 

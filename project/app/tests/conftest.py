@@ -1,4 +1,5 @@
 import os
+import tempfile
 from collections.abc import AsyncGenerator, Generator
 
 import pytest
@@ -15,6 +16,35 @@ from sqlalchemy.orm import Session, SessionTransaction
 @pytest.fixture
 def anyio_backend():
     return "asyncio"
+
+
+@pytest.fixture
+def temp_csv_file_1():
+    data = """influencer_id,post_id,shortcode,likes,comments,thumbnail,text,post_date
+1,1,shortcode1,100,10,thumbnail1,こんにちは,2023-01-01 12:00:00
+2,2,shortcode2,200,20,thumbnail2,今日の天気,2023-02-02 13:00:00"""
+    temp_file = tempfile.NamedTemporaryFile(
+        delete=False, mode="w", encoding="cp932", newline=""
+    )
+    temp_file.write(data)
+    temp_file.close()
+    yield temp_file.name
+    os.remove(temp_file.name)
+
+
+@pytest.fixture
+def temp_csv_file_2():
+    data = """influencer_id,post_id,shortcode,likes,comments,thumbnail,text,post_date
+1,1,shortcode1,100,10,thumbnail1,こんにちは,2023-01-01 12:00:00
+2,2,shortcode2_update,200,20,thumbnail2,今日の天気,2023-02-02 13:00:00
+2,3,shortcode3,300,30,thumbnail3,今日の天気,2023-02-02 13:00:00"""
+    temp_file = tempfile.NamedTemporaryFile(
+        delete=False, mode="w", encoding="cp932", newline=""
+    )
+    temp_file.write(data)
+    temp_file.close()
+    yield temp_file.name
+    os.remove(temp_file.name)
 
 
 @pytest.fixture(scope="function")
