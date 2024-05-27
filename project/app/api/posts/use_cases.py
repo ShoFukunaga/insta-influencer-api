@@ -3,8 +3,13 @@ from collections import Counter, defaultdict
 import spacy
 from app.database import AsyncSession, PostRepository
 from app.exceptions import NotFound
-from app.models import (InfluencerAverage, InfluencerMostComments,
-                        InfluencerMostLikes, InfluencerMostNouns, NounCounts)
+from app.models import (
+    InfluencerAverage,
+    InfluencerMostComments,
+    InfluencerMostLikes,
+    InfluencerMostNouns,
+    NounCounts,
+)
 
 nlp = spacy.load("ja_ginza")
 
@@ -31,8 +36,14 @@ class GetInfluencerAverage:
                 raise NotFound("influencer_id", influencer_id)
         return InfluencerAverage(
             influencer_id=influencer_id,
-            average_likes=sum([post.likes for post in posts]) / len(posts),
-            average_comments=sum([post.comments for post in posts]) / len(posts),
+            average_likes=round(
+                sum([post.likes for post in posts]) / len(posts),
+                2,
+            ),
+            average_comments=round(
+                sum([post.comments for post in posts]) / len(posts),
+                2,
+            ),
         )
 
 
